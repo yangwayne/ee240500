@@ -1,0 +1,588 @@
+function Car_move() {
+
+		
+		var i=0;
+
+
+
+		//	context.clear();
+		context.clearRect(car_x, car_y, 115, 115);
+
+	//		serverAddress=serverAddressBase+requestCounter;
+			GetJsonData();
+
+
+
+			var move_x = 0;
+			var move_y = 0;
+
+			if(d2 < 1500 && d2 > -1500) check = 1;
+			
+
+			if(d2 < -1500 && check) rot_cnt = rot_cnt-1;
+			if(d2 > 1500 && check) rot_cnt = rot_cnt+1;
+
+			if(rot_cnt > 10) { rot = rot+1;   rot_cnt = 0;  check = 0;}
+			if(rot_cnt < -10){ rot = rot-1;   rot_cnt = 0;  check = 0;}
+
+			if(rot == -1) rot = 11;
+			if(rot == 12) rot = 0;
+
+
+		switch(rot) {
+		    case 0:
+			move_x = -2;
+			move_y = 0;
+			img.src = "car/0.jpg"
+			break;
+		    case 1:
+			move_x = -1.73;
+			move_y = -1;
+			img.src = "car/30.jpg"
+			break;
+		    case 2:
+			move_x = -1;
+			move_y = -1.73;
+			img.src = "car/60.jpg"
+			break;
+		    case 3:
+			move_x = 0;
+			move_y = -2;
+			img.src = "car/90.jpg"
+			break;
+		    case 4:
+			move_x = 1;
+			move_y = -1.73;
+			img.src = "car/120.jpg"
+			break;
+		    case 5:
+			move_x = 1.73;
+			move_y = -1;
+			img.src = "car/150.jpg"
+			break;
+		    case 6:
+			move_x = 2;
+			move_y = 0;
+			img.src = "car/180.jpg"
+			break;
+		    case 7:
+			move_x = 1.73;
+			move_y = 1;
+			img.src = "car/210.jpg"
+			break;
+		    case 8:
+			move_x = 1;
+			move_y = 1.73;
+			img.src = "car/240.jpg"
+			break;
+		    case 9:
+			move_x = 0;
+			move_y = 2;
+			img.src = "car/270.jpg"
+			break;
+		    case 10:
+			move_x = -1;
+			move_y = 1.73;
+			img.src = "car/300.jpg"
+			break;
+		    case 11:
+			move_x = -1.73;
+			move_y = 1;
+			img.src = "car/330.jpg"
+			break;
+
+
+		    default:
+			img.src = "car/0.jpg"
+		} 
+				move_x = 2*move_x ;
+				move_y = 2*move_y ;
+
+			if(d1 < 1000){
+				move_x = -move_x ;
+				move_y = -move_y ;
+			}
+			if(d1 > -1500 && d1 < 1500){
+				move_x = 0;
+				move_y = 0 ;
+			}
+
+
+
+			car_x = car_x + move_x;
+			car_y = car_y + move_y;
+
+
+
+			if(car_x < 0 ) car_x = 0;
+			if(car_x > 900 ) car_x = 900;
+
+			if(car_y < 0 ) car_y = 0;
+			if(car_y > 900 ) car_y = 900;
+
+			if(car_y < 135 ) car_y = 135;
+
+			if(car_x > 110 && car_x < 780){
+
+				if(car_y > 185 && car_y < 210) car_y = 185;
+				if(car_y < 780 && car_y > 760) car_y = 780;
+			}
+
+			if(car_y > 190 && car_y < 780){
+
+				if(car_x > 105 && car_x < 130) car_x = 105;
+				if(car_x < 780 && car_x > 760) car_x = 780;
+			}
+
+			
+			document.getElementById("p1").innerHTML = d1;
+			document.getElementById("p2").innerHTML = d2;
+
+//img.src = "car/90.jpg";
+
+
+			context.drawImage(img, car_x, car_y, 95,95);
+		
+
+
+
+
+			
+
+			
+/*
+			if(!nodata){ //Keep the file counter
+				requestCounter=(requestCounter+1)%2; //cycle counter
+				//alert('Counter changed: '+requestCounter);
+			}
+			else{
+				
+				//alert('Counter keeped: '+requestCounter);
+			}*/
+
+
+			setTimeout(Car_move ,30);
+			
+
+
+
+	//	img.onload = function () {
+
+
+
+
+	//	}
+
+
+			
+	}
+<!DOCTYPE html>
+<html>
+<body>
+
+
+<p>Canvas:</p>
+<canvas id="myCanvas" width="1000" height="1000" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+
+<p id="p1">Hello World!</p>
+<p id="p2">Hello World!</p>
+
+<script>
+
+
+
+var batch=30;
+    var samples=batch;
+    var timecycle=0;
+    var requestCounter = 0;
+    var interval = 0;
+    var nodata = 0;
+    var serverAddressBase = "xdata.";
+    var serverAddress = "xdata.0"; //default file to get from server
+
+    d1 = 0;
+    d2 = 0;
+    d3 = 0;
+    
+
+var xmlHttp = createXmlHttpRequestObject();
+   
+
+// creates XMLHttpRequest Instance
+    function createXmlHttpRequestObject(){
+
+      // will store XMLHttpRequest object
+      // at here
+      var xmlHttp;
+
+      // works all exceprt IE6 and older  
+      try
+      {
+      
+	// try to create XMLHttpRequest object
+	xmlHttp = new XMLHttpRequest();    
+      }
+      catch(e)
+      {
+	// assume IE 6 or older
+	try
+	{
+	  xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	catch(e){ }
+      }
+      
+      // return object or display error
+      if (!xmlHttp)
+	alert("Error creating the XMLHttpRequest Object");
+      else
+	return xmlHttp;
+    }
+
+
+
+    function GetJsonData()
+    {
+      //debug
+      //myDiv = document.getElementById("myDivElement"); 
+      //myDiv.innerHTML += "Getting Json Data<br>"; 
+      nodata=0;
+
+      if(xmlHttp)
+      {
+	try
+	{
+	  xmlHttp.open("Get", serverAddress, false);
+	  //xmlHttp.onreadystatechange = handleRequestStateChange; //We use synchronous data transfer, so we don't need this here
+	  xmlHttp.send(null);
+	  try{
+		  handleJsonData();
+	  }
+	  catch(err){
+	     if(err=="no data"){
+	          //alert('Waiting '+serverAddressBase+requestCounter);
+		  //setTimeout(GetJsonData,10); //Try again 10ms later
+		  nodata=1; //record status
+	     }
+	  }
+	}
+	catch(e)
+	{
+	  alert("Can't connect to server\n" + e.toString());
+	}
+      }
+    }
+
+    function handleRequestStateChange()
+    {
+      if (xmlHttp.readyState == 4)
+      {
+	if(xmlHttp.status == 200|| xmlHttp.status == 0)
+	    {
+	      try
+	      {
+		handleJsonData();
+	      }
+	      catch(e)
+	      {
+		alert("Error reading the response: " + e.toString());
+	      }
+	    }
+	    else
+	    {
+	      alert("Problem retrieving data:\n" + xmlHttp.statusText);
+	    }
+      
+      
+      }
+      
+    }
+
+    function handleJsonData()
+    {
+      var result = xmlHttp.responseText;
+      if(result==''){
+        //alert('No data from xmlhttprequest object!');
+	throw "no data";
+      }
+      else{
+	      try{
+		      var jobject = eval("(" + result + ")");
+		      var i=0;
+		      if(jobject.time>timecycle){
+			      timecycle=jobject.time;
+			      if(jobject.xarray.length==0){
+				throw "no data";
+			      }
+			      else{
+					i = jobject.xarray.length-1;
+			//	      for (i=0;i<jobject.xarray.length;i++)
+			//	      {
+					  //debug
+					  //myDiv.innerHTML += jobject.xarray[i][0] + ", " + jobject.xarray[i][1] + "<br>" ;
+					  d1=jobject.xarray[i][0];
+					  d2=jobject.xarray[i][1];
+					  d3=jobject.xarray[i][2];
+					  /*
+					  d1.push(jobject.xarray[i][0]); 
+					  d2.push(jobject.xarray[i][1]); 
+					  d3.push(jobject.xarray[i][2]);
+					  */
+			//	      }
+			      }
+		      }
+		      else{
+			//Do nothing
+		      }
+	      }
+	      catch(e){
+		//Retry; ignore all json errors
+	      }
+      }
+    }
+
+
+
+    
+
+
+	function Car_move() {
+
+		
+		var i=0;
+
+
+
+		//	context.clear();
+		context.clearRect(car_x, car_y, 115, 115);
+
+	//		serverAddress=serverAddressBase+requestCounter;
+			GetJsonData();
+
+
+
+			var move_x = 0;
+			var move_y = 0;
+
+			if(d2 < 1500 && d2 > -1500) check = 1;
+			
+
+			if(d2 < -1500 && check) rot_cnt = rot_cnt-1;
+			if(d2 > 1500 && check) rot_cnt = rot_cnt+1;
+
+			if(rot_cnt > 10) { rot = rot+1;   rot_cnt = 0;  check = 0;}
+			if(rot_cnt < -10){ rot = rot-1;   rot_cnt = 0;  check = 0;}
+
+			if(rot == -1) rot = 11;
+			if(rot == 12) rot = 0;
+
+
+		switch(rot) {
+		    case 0:
+			move_x = -2;
+			move_y = 0;
+			img.src = "car/0.jpg"
+			break;
+		    case 1:
+			move_x = -1.73;
+			move_y = -1;
+			img.src = "car/30.jpg"
+			break;
+		    case 2:
+			move_x = -1;
+			move_y = -1.73;
+			img.src = "car/60.jpg"
+			break;
+		    case 3:
+			move_x = 0;
+			move_y = -2;
+			img.src = "car/90.jpg"
+			break;
+		    case 4:
+			move_x = 1;
+			move_y = -1.73;
+			img.src = "car/120.jpg"
+			break;
+		    case 5:
+			move_x = 1.73;
+			move_y = -1;
+			img.src = "car/150.jpg"
+			break;
+		    case 6:
+			move_x = 2;
+			move_y = 0;
+			img.src = "car/180.jpg"
+			break;
+		    case 7:
+			move_x = 1.73;
+			move_y = 1;
+			img.src = "car/210.jpg"
+			break;
+		    case 8:
+			move_x = 1;
+			move_y = 1.73;
+			img.src = "car/240.jpg"
+			break;
+		    case 9:
+			move_x = 0;
+			move_y = 2;
+			img.src = "car/270.jpg"
+			break;
+		    case 10:
+			move_x = -1;
+			move_y = 1.73;
+			img.src = "car/300.jpg"
+			break;
+		    case 11:
+			move_x = -1.73;
+			move_y = 1;
+			img.src = "car/330.jpg"
+			break;
+
+
+		    default:
+			img.src = "car/0.jpg"
+		} 
+				move_x = 2*move_x ;
+				move_y = 2*move_y ;
+
+			if(d1 < 1000){
+				move_x = -move_x ;
+				move_y = -move_y ;
+			}
+			if(d1 > -1500 && d1 < 1500){
+				move_x = 0;
+				move_y = 0 ;
+			}
+
+
+
+			car_x = car_x + move_x;
+			car_y = car_y + move_y;
+
+
+
+			if(car_x < 0 ) car_x = 0;
+			if(car_x > 900 ) car_x = 900;
+
+			if(car_y < 0 ) car_y = 0;
+			if(car_y > 900 ) car_y = 900;
+
+			if(car_y < 135 ) car_y = 135;
+
+			if(car_x > 110 && car_x < 780){
+
+				if(car_y > 185 && car_y < 210) car_y = 185;
+				if(car_y < 780 && car_y > 760) car_y = 780;
+			}
+
+			if(car_y > 190 && car_y < 780){
+
+				if(car_x > 105 && car_x < 130) car_x = 105;
+				if(car_x < 780 && car_x > 760) car_x = 780;
+			}
+
+			
+			document.getElementById("p1").innerHTML = d1;
+			document.getElementById("p2").innerHTML = d2;
+
+//img.src = "car/90.jpg";
+
+
+			context.drawImage(img, car_x, car_y, 95,95);
+		
+
+
+
+
+			
+
+			
+/*
+			if(!nodata){ //Keep the file counter
+				requestCounter=(requestCounter+1)%2; //cycle counter
+				//alert('Counter changed: '+requestCounter);
+			}
+			else{
+				
+				//alert('Counter keeped: '+requestCounter);
+			}*/
+
+
+			setTimeout(Car_move ,30);
+			
+
+
+
+	//	img.onload = function () {
+
+
+
+
+	//	}
+
+
+			
+	}
+var context = document.getElementById('myCanvas').getContext("2d");
+var img = new Image();
+
+var car_x = 800;
+var car_y = 800;
+var rot = 0;
+var rot_cnt = 0;
+var check = 1;
+
+
+			context.moveTo(0,125);
+			context.lineTo(350,125);
+			context.stroke();
+
+			context.moveTo(350,125);
+			context.lineTo(350,20);
+			context.stroke();
+
+			context.moveTo(350,20);
+			context.lineTo(540,20);
+			context.stroke();
+
+			context.moveTo(540,20);
+			context.lineTo(540,125);
+			context.stroke();
+
+
+			context.moveTo(540,125);
+			context.lineTo(1000,125);
+			context.stroke();
+
+
+			context.moveTo(220,300);
+			context.lineTo(220,770);
+			context.stroke();
+
+			context.moveTo(220,300);
+			context.lineTo(770,300);
+			context.stroke();
+
+			context.moveTo(770,300);
+			context.lineTo(770,770);
+			context.stroke();
+
+			context.moveTo(220,770);
+			context.lineTo(770,770);
+			context.stroke();
+
+ Car_move();
+
+
+
+
+
+</script>
+
+
+
+</body>
+</html>
