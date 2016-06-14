@@ -1,0 +1,174 @@
+#include "simpletools.h"
+#include "servo.h"
+#include "servodiffdrive.h"
+#include "fdserial.h"
+#include "talk.h"
+#include "ping.h" // Include ping header
+#define PIN_SOUND       26 // pin for the speaker, default=26
+#define PIN_XBEE_RX      0
+#define PIN_XBEE_TX      1
+#define PIN_SERVO_LEFT  14
+#define PIN_SERVO_RIGHT 15
+#define STANDARD_MOTOR 16
+#define LEFT_MOTOR 14
+#define RIGHT_MOTOR 15
+#define PING 18
+int cmDist;
+char char2lowercase (char c);
+int main (void) {
+	fdserial *xbee;
+	xbee = fdserial_open(PIN_XBEE_RX, PIN_XBEE_TX, 0, 9600);
+	drive_pins(PIN_SERVO_LEFT, PIN_SERVO_RIGHT);
+	pause(1000);
+	putchar(CLS);
+	fdserial_rxFlush(xbee);
+	while (1) {
+		int ch = fdserial_rxChar(xbee);
+		ch = char2lowercase(ch);
+		fdserial_rxFlush(xbee);
+  
+    switch ((char) ch) {
+     
+     case'1':
+     
+      while(1){
+        servo_angle(STANDARD_MOTOR, 0); // PLEFT_MOTOR servo to 0 degrees
+        /*
+        Let your car forward
+        */ 
+        servo_speed(LEFT_MOTOR,30);
+        servo_speed(RIGHT_MOTOR,-30); 
+        pause(500); // ...for 0.5 seconds
+        cmDist = ping_cm(PING); // Get cm distance from Ping)))
+        print("cmDist = %d\n", cmDist); // Display distance 
+        /*
+        Let your car turn right if distance is < 10
+        */ 
+        if(cmDist<=10){
+        servo_speed(LEFT_MOTOR,0);
+        servo_speed(RIGHT_MOTOR,0);
+        freqout(4, 1000, 3000); // pin, duration, frequency
+        high(26);    // P26 LED on 
+        pause(1000); // ...for 1 seconds2
+        low(26);                            // P26 LED off
+        pause(100);                         // ...for 0.1 seconds
+        break;
+        } 
+       
+       }
+       break;
+     
+    case '3':
+      while(1) // Repeat indefinitely
+      {
+         servo_angle(STANDARD_MOTOR, 0); // PLEFT_MOTOR servo to 0 degrees
+          /*
+          Let your car forward
+          */ 
+          servo_speed(LEFT_MOTOR,30);
+          servo_speed(RIGHT_MOTOR,-30); 
+          pause(500); // ...for 0.5 seconds
+          cmDist = ping_cm(PING); // Get cm distance from Ping)))
+          print("cmDist = %d\n", cmDist); // Display distance 
+          /*
+          Let your car turn right if distance is < 10
+          */ 
+          if(cmDist<=10){
+            servo_speed(LEFT_MOTOR,100);
+            servo_speed(RIGHT_MOTOR,0);
+            pause(1000); // ...for 1 seconds
+          } 
+          servo_angle(STANDARD_MOTOR, 900); // PLEFT_MOTOR servo to 90 degrees
+          /*
+          Let your car forward
+          */ 
+      }     
+      
+     break;
+     
+     case '2':
+     
+     while(1)                                    // Endless loop
+      {
+        servo_angle(STANDARD_MOTOR, 0); // PLEFT_MOTOR servo to 0 degrees
+          /*
+          Let your car forward
+          */ 
+        servo_speed(14, 30);           // P14 servo to full speed counterclockwise
+        servo_speed(15, -30);          // P15 servo to full speed clockwise
+    
+        pause(2000);                    // ...for 3 seconds
+  
+        servo_speed(14, 50);           // P14 servo to full speed counterclockwise
+        servo_speed(15, 50);          // P15 servo to full speed clockwise
+        pause(1000);
+        
+        pause(500); // ...for 0.5 seconds
+        high(5);                                  // Set P5 high
+        pause(1);                                 // Wait for circuit to charge
+        int t = rc_time(5, 1);                    // Measure decay time on P5
+        print("t = %d\n", t);                     // Display decay time
+        pause(100);
+       if(t<=50){
+        servo_speed(LEFT_MOTOR,0);
+        servo_speed(RIGHT_MOTOR,0);
+        freqout(4, 1000, 3000); // pin, duration, frequency
+        high(26);    // P26 LED on 
+        pause(1000); // ...for 1 seconds2
+        low(26);                            // P26 LED off
+        pause(100);                         // ...for 0.1 seconds
+        break;
+       }                                // Wait 1/10th of a second
+      }
+     
+     
+     
+     break;
+      
+       
+     case 'f':
+      print("Forward\n");
+      drive_speeds(100, 100);
+      pause(2000);
+      drive_speeds(0, 0);
+      break;
+     case 'r':
+      print("Right\n");
+      drive_speeds(50, -50);
+      pause(700);
+      drive_speeds(0, 0);
+      break;
+     case 'l':
+      print("Left\n");
+      drive_speeds(-50, 50);
+      pause(700);
+      drive_speeds(0, 0);
+      break;
+     case 's':
+      print("Sing\n");
+      servo_speed(LEFT_MOTOR,0);
+      servo_speed(RIGHT_MOTOR,0);
+      talk_Start(PIN_SOUND);
+      talk_Set_speaker(0, 100);
+      talk_Say("#1aybee+7seedee++ee ef--jee, --aychae-jaykay--elemenoa--pee, +7kewar--esand-teeew--vee, +5dubul--yewand-ekswae--z%150ee%;");
+      talk_Say("_nowyoov+7herdmae++aybee--sees, --telmee-wutyoo--thinkuv--m%200ee%...");
+      pause(700);
+      break;
+          
+      
+      default:
+        print("Invalid Command\n");
+        pause(700);
+        break;
+      
+    }      
+  
+		print("%c", (char) ch);
+		pause(100);
+		fdserial_txChar(xbee, ch);
+		fdserial_txFlush(xbee);
+	}
+}
+char char2lowercase (char c) {
+	return 'A'<=c && c<='Z' ? c+32 : c;
+}
